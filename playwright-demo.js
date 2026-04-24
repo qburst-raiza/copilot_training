@@ -81,6 +81,13 @@ async function openPlaywrightDocs(options = {}) {
       throw new Error('Assertion failed: Expected at least one h1 heading on the page');
     }
     console.log('✓ Assertion passed: At least one h1 heading found on the page');
+
+    // Assertion: Verify the main heading references Playwright
+    const mainHeading = headings[0].trim();
+    if (!mainHeading.toLowerCase().includes('playwright')) {
+      throw new Error(`Assertion failed: Expected main heading to reference "Playwright", but got "${mainHeading}"`);
+    }
+    console.log(`✓ Assertion passed: Main heading references Playwright ("${mainHeading}")`);
     
     // Assertion: Verify sufficient navigation links are present
     if (links < 5) {
@@ -122,4 +129,3 @@ if (require.main === module) {
     process.exit(1);
   });
 }
-
