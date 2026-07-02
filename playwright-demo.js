@@ -15,9 +15,14 @@ async function openPlaywrightDocs(options = {}) {
   let browser = null;
   
   try {
-    // Validate URL
-    if (!config.url.startsWith('http')) {
-      throw new Error('Invalid URL: URL must start with http or https');
+    // Validate URL using the URL constructor for robust parsing
+    try {
+      const parsed = new URL(config.url);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        throw new Error('URL must use http or https protocol');
+      }
+    } catch (e) {
+      throw new Error(`Invalid URL: ${e.message}`);
     }
 
     // Launch browser in headless mode
@@ -61,10 +66,6 @@ async function openPlaywrightDocs(options = {}) {
     await page.screenshot({ path: config.screenshotPath });
     console.log(`✓ Screenshot saved as ${config.screenshotPath}`);
     
-    // Wait for main content to be visible
-    console.log('Waiting for main content...');
-    await page.waitForLoadState('domcontentloaded');
-    
     // Get page content statistics
     const headings = await page.locator('h1').allTextContents();
     const links = await page.locator('a').count();
@@ -96,9 +97,15 @@ async function openPlaywrightDocs(options = {}) {
     console.log(`✓ Assertion passed: Current URL is on correct domain (${currentUrl})`);
 
     // Assertion: Verify the page has a meta description tag (important for SEO and homepage quality)
-    const metaDescription = await page.locator('meta[name="description"]').getAttribute('content');
+    // Check existence first — locator.getAttribute() times out (not returns null) when the element is absent
+    const metaDescLocator = page.locator('meta[name="description"]');
+    const metaDescCount = await metaDescLocator.count();
+    if (metaDescCount === 0) {
+      throw new Error('Assertion failed: Expected the homepage to have a meta description tag, but none was found');
+    }
+    const metaDescription = await metaDescLocator.getAttribute('content');
     if (!metaDescription || metaDescription.trim().length === 0) {
-      throw new Error('Assertion failed: Expected the homepage to have a non-empty meta description tag');
+      throw new Error('Assertion failed: Expected the homepage meta description to have non-empty content');
     }
     console.log(`✓ Assertion passed: Homepage has a meta description ("${metaDescription.substring(0, 80)}...")`);
     
@@ -108,7 +115,6 @@ async function openPlaywrightDocs(options = {}) {
     
   } catch (error) {
     console.error('❌ Error during demo:', error.message);
-    process.exitCode = 1;
     return { success: false, error: error.message };
   } finally {
     // Close the browser safely
@@ -124,7 +130,9 @@ module.exports = { openPlaywrightDocs };
 
 // Run the demo if executed directly
 if (require.main === module) {
-  openPlaywrightDocs().catch(error => {
+  openPlaywrightDocs().then(result => {
+    if (!result.success) process.exitCode = 1;
+  }).catch(error => {
     console.error('Fatal error:', error);
     process.exit(1);
   });
