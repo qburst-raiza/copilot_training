@@ -61,10 +61,6 @@ async function openPlaywrightDocs(options = {}) {
     await page.screenshot({ path: config.screenshotPath });
     console.log(`✓ Screenshot saved as ${config.screenshotPath}`);
     
-    // Wait for main content to be visible
-    console.log('Waiting for main content...');
-    await page.waitForLoadState('domcontentloaded');
-    
     // Get page content statistics
     const headings = await page.locator('h1').allTextContents();
     const links = await page.locator('a').count();
@@ -101,15 +97,14 @@ async function openPlaywrightDocs(options = {}) {
     if (getStartedCount === 0) {
       throw new Error('Assertion failed: Expected a "Get started" link on the homepage, but none was found');
     }
-    console.log('✓ Assertion passed: "Get started" link is present on the homepage');
+    console.log(`✓ Assertion passed: Found ${getStartedCount} "Get started" link(s) on the homepage`);  
 
     console.log('\n✓ Playwright demo completed successfully!');
     console.log('✓ All assertions passed!');
-    return { success: true, pageTitle: title, headingCount: headings.length };
+    return { success: true, pageTitle: title, headingCount: headings.length, linkCount: links };
     
   } catch (error) {
     console.error('❌ Error during demo:', error.message);
-    process.exitCode = 1;
     return { success: false, error: error.message };
   } finally {
     // Close the browser safely
@@ -125,7 +120,9 @@ module.exports = { openPlaywrightDocs };
 
 // Run the demo if executed directly
 if (require.main === module) {
-  openPlaywrightDocs().catch(error => {
+  openPlaywrightDocs().then(result => {
+    if (!result.success) process.exitCode = 1;
+  }).catch(error => {
     console.error('Fatal error:', error);
     process.exit(1);
   });
