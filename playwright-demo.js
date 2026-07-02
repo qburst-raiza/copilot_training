@@ -94,6 +94,13 @@ async function openPlaywrightDocs(options = {}) {
       throw new Error(`Assertion failed: Expected URL to contain "playwright.dev", but got "${currentUrl}"`);
     }
     console.log(`✓ Assertion passed: Current URL is on correct domain (${currentUrl})`);
+
+    // Assertion: Verify the page has a meta description tag (important for SEO and homepage quality)
+    const metaDescription = await page.locator('meta[name="description"]').getAttribute('content');
+    if (!metaDescription || metaDescription.trim().length === 0) {
+      throw new Error('Assertion failed: Expected the homepage to have a non-empty meta description tag');
+    }
+    console.log(`✓ Assertion passed: Homepage has a meta description ("${metaDescription.substring(0, 80)}...")`);
     
     console.log('\n✓ Playwright demo completed successfully!');
     console.log('✓ All assertions passed!');
