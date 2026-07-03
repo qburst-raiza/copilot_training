@@ -36,8 +36,9 @@ async function openPlaywrightDocs(options = {}) {
     console.log(`Navigating to ${config.url}...`);
     
     // Navigate to URL with proper timeout and error handling
+    let response;
     try {
-      await page.goto(config.url, {
+      response = await page.goto(config.url, {
         waitUntil: 'networkidle'
       });
     } catch (navError) {
@@ -46,6 +47,12 @@ async function openPlaywrightDocs(options = {}) {
       }
       throw navError;
     }
+
+    // Assertion: Verify HTTP response status is 200 (OK)
+    if (!response || response.status() !== 200) {
+      throw new Error(`Assertion failed: Expected HTTP 200 OK response, but got ${response ? response.status() : 'no response'}`);
+    }
+    console.log('✓ Assertion passed: HTTP response status is 200 (OK)');
     
     // Get the page title
     const title = await page.title();
@@ -94,6 +101,13 @@ async function openPlaywrightDocs(options = {}) {
       throw new Error(`Assertion failed: Expected URL to contain "playwright.dev", but got "${currentUrl}"`);
     }
     console.log(`✓ Assertion passed: Current URL is on correct domain (${currentUrl})`);
+
+    // Assertion: Verify at least one <nav> navigation element exists on the page
+    const navElements = await page.locator('nav').count();
+    if (navElements === 0) {
+      throw new Error('Assertion failed: Expected at least one <nav> navigation element on the page');
+    }
+    console.log(`✓ Assertion passed: Found ${navElements} navigation element(s) on the page`);
     
     console.log('\n✓ Playwright demo completed successfully!');
     console.log('✓ All assertions passed!');
@@ -122,4 +136,3 @@ if (require.main === module) {
     process.exit(1);
   });
 }
-
