@@ -61,10 +61,6 @@ async function openPlaywrightDocs(options = {}) {
     await page.screenshot({ path: config.screenshotPath });
     console.log(`✓ Screenshot saved as ${config.screenshotPath}`);
     
-    // Wait for main content to be visible
-    console.log('Waiting for main content...');
-    await page.waitForLoadState('domcontentloaded');
-    
     // Get page content statistics
     const headings = await page.locator('h1').allTextContents();
     const links = await page.locator('a').count();
@@ -95,6 +91,13 @@ async function openPlaywrightDocs(options = {}) {
     }
     console.log(`✓ Assertion passed: Current URL is on correct domain (${currentUrl})`);
     
+    // Assertion: Verify the page has at least one navigation element
+    const navCount = await page.locator('nav').count();
+    if (navCount === 0) {
+      throw new Error('Assertion failed: Expected at least one <nav> element on the page for proper navigation structure');
+    }
+    console.log(`✓ Assertion passed: Found ${navCount} navigation element(s) on the page`);
+    
     console.log('\n✓ Playwright demo completed successfully!');
     console.log('✓ All assertions passed!');
     return { success: true, pageTitle: title, headingCount: headings.length };
@@ -122,4 +125,3 @@ if (require.main === module) {
     process.exit(1);
   });
 }
-
