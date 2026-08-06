@@ -68,12 +68,13 @@ async function openPlaywrightDocs(options = {}) {
     // Get page content statistics
     const headings = await page.locator('h1').allTextContents();
     const links = await page.locator('a').count();
+    const firstHeading = headings.length > 0 ? headings[0].trim() : '';
     
     console.log(`✓ Found ${headings.length} h1 heading(s) on the page`);
     console.log(`✓ Found ${links} link(s) on the page`);
     
     if (headings.length > 0) {
-      console.log(`  Main heading: ${headings[0].substring(0, 60)}`);
+      console.log(`  Main heading: ${firstHeading.substring(0, 60)}`);
     }
     
     // Assertion: Verify at least one h1 heading exists
@@ -81,6 +82,12 @@ async function openPlaywrightDocs(options = {}) {
       throw new Error('Assertion failed: Expected at least one h1 heading on the page');
     }
     console.log('✓ Assertion passed: At least one h1 heading found on the page');
+
+    // Assertion: Verify the main heading contains visible text
+    if (!firstHeading) {
+      throw new Error('Assertion failed: Expected the first h1 heading to contain visible text');
+    }
+    console.log(`✓ Assertion passed: Main heading contains visible text ("${firstHeading.substring(0, 60)}")`);
     
     // Assertion: Verify sufficient navigation links are present
     if (links < 5) {
@@ -97,7 +104,7 @@ async function openPlaywrightDocs(options = {}) {
     
     console.log('\n✓ Playwright demo completed successfully!');
     console.log('✓ All assertions passed!');
-    return { success: true, pageTitle: title, headingCount: headings.length };
+    return { success: true, pageTitle: title, headingCount: headings.length, mainHeading: firstHeading };
     
   } catch (error) {
     console.error('❌ Error during demo:', error.message);
@@ -122,4 +129,3 @@ if (require.main === module) {
     process.exit(1);
   });
 }
-
