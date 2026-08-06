@@ -2,6 +2,7 @@
 // Purpose: Opens and demonstrates Playwright documentation page
 
 const { chromium } = require('playwright');
+const { stat } = require('fs/promises');
 
 async function openPlaywrightDocs(options = {}) {
   // Configuration with defaults
@@ -60,6 +61,13 @@ async function openPlaywrightDocs(options = {}) {
     // Take a screenshot for demo
     await page.screenshot({ path: config.screenshotPath });
     console.log(`✓ Screenshot saved as ${config.screenshotPath}`);
+
+    // Assertion: Verify the screenshot file was created and is not empty
+    const screenshotStats = await stat(config.screenshotPath);
+    if (screenshotStats.size === 0) {
+      throw new Error(`Assertion failed: Expected screenshot file "${config.screenshotPath}" to contain image data`);
+    }
+    console.log(`✓ Assertion passed: Screenshot file contains ${screenshotStats.size} bytes`);
     
     // Wait for main content to be visible
     console.log('Waiting for main content...');
@@ -122,4 +130,3 @@ if (require.main === module) {
     process.exit(1);
   });
 }
-
