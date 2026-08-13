@@ -68,12 +68,13 @@ async function openPlaywrightDocs(options = {}) {
     // Get page content statistics
     const headings = await page.locator('h1').allTextContents();
     const links = await page.locator('a').count();
+    const primaryHeading = headings[0]?.trim() || '';
     
     console.log(`✓ Found ${headings.length} h1 heading(s) on the page`);
     console.log(`✓ Found ${links} link(s) on the page`);
     
-    if (headings.length > 0) {
-      console.log(`  Main heading: ${headings[0].substring(0, 60)}`);
+    if (primaryHeading) {
+      console.log(`  Main heading: ${primaryHeading.substring(0, 60)}`);
     }
     
     // Assertion: Verify at least one h1 heading exists
@@ -81,6 +82,12 @@ async function openPlaywrightDocs(options = {}) {
       throw new Error('Assertion failed: Expected at least one h1 heading on the page');
     }
     console.log('✓ Assertion passed: At least one h1 heading found on the page');
+
+    // Assertion: Verify the primary heading references Playwright
+    if (!primaryHeading.toLowerCase().includes('playwright')) {
+      throw new Error(`Assertion failed: Expected the primary heading to reference "Playwright", but got "${primaryHeading}"`);
+    }
+    console.log('✓ Assertion passed: Primary heading references "Playwright"');
     
     // Assertion: Verify sufficient navigation links are present
     if (links < 5) {
@@ -122,4 +129,3 @@ if (require.main === module) {
     process.exit(1);
   });
 }
-
