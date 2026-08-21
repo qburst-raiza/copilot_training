@@ -81,6 +81,13 @@ async function openPlaywrightDocs(options = {}) {
       throw new Error('Assertion failed: Expected at least one h1 heading on the page');
     }
     console.log('✓ Assertion passed: At least one h1 heading found on the page');
+
+    // Assertion: Verify the primary heading has readable text
+    const primaryHeading = headings[0].trim();
+    if (primaryHeading.length < 3) {
+      throw new Error(`Assertion failed: Expected primary heading text to be readable, but got "${headings[0]}"`);
+    }
+    console.log(`✓ Assertion passed: Primary heading text is readable ("${primaryHeading}")`);
     
     // Assertion: Verify sufficient navigation links are present
     if (links < 5) {
@@ -97,7 +104,12 @@ async function openPlaywrightDocs(options = {}) {
     
     console.log('\n✓ Playwright demo completed successfully!');
     console.log('✓ All assertions passed!');
-    return { success: true, pageTitle: title, headingCount: headings.length };
+    return {
+      success: true,
+      pageTitle: title,
+      headingCount: headings.length,
+      primaryHeading
+    };
     
   } catch (error) {
     console.error('❌ Error during demo:', error.message);
@@ -122,4 +134,3 @@ if (require.main === module) {
     process.exit(1);
   });
 }
-
