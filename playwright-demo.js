@@ -46,6 +46,16 @@ async function openPlaywrightDocs(options = {}) {
       }
       throw navError;
     }
+
+    console.log('Waiting for main content...');
+    await page.waitForLoadState('domcontentloaded');
+
+    const mainContent = page.locator('main');
+    const mainContentCount = await mainContent.count();
+    if (mainContentCount === 0) {
+      throw new Error('Assertion failed: Expected the page to include a main content region');
+    }
+    console.log('✓ Assertion passed: Main content region exists on the page');
     
     // Get the page title
     const title = await page.title();
@@ -60,10 +70,6 @@ async function openPlaywrightDocs(options = {}) {
     // Take a screenshot for demo
     await page.screenshot({ path: config.screenshotPath });
     console.log(`✓ Screenshot saved as ${config.screenshotPath}`);
-    
-    // Wait for main content to be visible
-    console.log('Waiting for main content...');
-    await page.waitForLoadState('domcontentloaded');
     
     // Get page content statistics
     const headings = await page.locator('h1').allTextContents();
@@ -122,4 +128,3 @@ if (require.main === module) {
     process.exit(1);
   });
 }
-
