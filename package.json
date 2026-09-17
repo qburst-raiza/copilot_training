@@ -1,0 +1,13 @@
+{
+  "name": "copilot-training",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright demo script for Copilot training.",
+  "main": "playwright-demo.js",
+  "scripts": {
+    "demo": "node playwright-demo.js"
+  },
+  "dependencies": {
+    "playwright": "^1.55.0"
+  }
+}
