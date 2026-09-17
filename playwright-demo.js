@@ -82,17 +82,17 @@ async function openPlaywrightDocs(options = {}) {
     }
     console.log('✓ Assertion passed: At least one h1 heading found on the page');
 
-      // Assertion: Verify the homepage exposes the primary getting-started CTA
-      const getStartedLink = page.getByRole('link', { name: /get started/i }).first();
-      if (!(await getStartedLink.isVisible())) {
-        throw new Error('Assertion failed: Expected the homepage "Get started" link to be visible');
-      }
+    // Assertion: Verify the homepage exposes the primary getting-started CTA
+    const getStartedLink = page.getByRole('link', { name: /get started/i }).first();
+    if (!(await getStartedLink.isVisible())) {
+      throw new Error('Assertion failed: Expected the homepage "Get started" link to be visible');
+    }
 
-      const getStartedHref = await getStartedLink.getAttribute('href');
-      if (!getStartedHref || !getStartedHref.includes('/docs/intro')) {
-        throw new Error(`Assertion failed: Expected "Get started" link to point to docs intro, but got "${getStartedHref}"`);
-      }
-      console.log(`✓ Assertion passed: "Get started" link is visible and points to ${getStartedHref}`);
+    const getStartedHref = await getStartedLink.getAttribute('href');
+    if (!getStartedHref || !getStartedHref.includes('/docs/intro')) {
+      throw new Error(`Assertion failed: Expected "Get started" link to point to docs intro, but got "${getStartedHref}"`);
+    }
+    console.log(`✓ Assertion passed: "Get started" link is visible and points to ${getStartedHref}`);
     
     // Assertion: Verify sufficient navigation links are present
     if (links < 5) {
