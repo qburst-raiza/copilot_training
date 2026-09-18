@@ -104,12 +104,7 @@ async function openPlaywrightDocs(options = {}) {
     
     console.log('\n✓ Playwright demo completed successfully!');
     console.log('✓ All assertions passed!');
-    return {
-      success: true,
-      pageTitle: title,
-      headingCount: headings.length,
-      primaryHeading
-    };
+    return { success: true, pageTitle: title, headingCount: headings.length };
     
   } catch (error) {
     console.error('❌ Error during demo:', error.message);
