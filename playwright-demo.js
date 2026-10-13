@@ -81,6 +81,13 @@ async function openPlaywrightDocs(options = {}) {
       throw new Error('Assertion failed: Expected at least one h1 heading on the page');
     }
     console.log('✓ Assertion passed: At least one h1 heading found on the page');
+
+    // Assertion: Verify the primary heading contains visible text
+    const primaryHeading = headings[0].trim();
+    if (!primaryHeading) {
+      throw new Error('Assertion failed: Expected the first h1 heading to contain visible text');
+    }
+    console.log(`✓ Assertion passed: Primary h1 heading contains visible text ("${primaryHeading.substring(0, 60)}")`);
     
     // Assertion: Verify sufficient navigation links are present
     if (links < 5) {
@@ -89,11 +96,12 @@ async function openPlaywrightDocs(options = {}) {
     console.log(`✓ Assertion passed: Found ${links} links on the page (expected at least 5)`);
     
     // Assertion: Verify we're on the correct domain
-    const currentUrl = page.url();
-    if (!currentUrl.includes('playwright.dev')) {
-      throw new Error(`Assertion failed: Expected URL to contain "playwright.dev", but got "${currentUrl}"`);
+    const currentUrl = new URL(page.url());
+    const isPlaywrightDomain = currentUrl.hostname === 'playwright.dev' || currentUrl.hostname.endsWith('.playwright.dev');
+    if (!isPlaywrightDomain) {
+      throw new Error(`Assertion failed: Expected hostname to be playwright.dev, but got "${currentUrl.hostname}"`);
     }
-    console.log(`✓ Assertion passed: Current URL is on correct domain (${currentUrl})`);
+    console.log(`✓ Assertion passed: Current URL is on correct domain (${currentUrl.href})`);
     
     console.log('\n✓ Playwright demo completed successfully!');
     console.log('✓ All assertions passed!');
@@ -122,4 +130,3 @@ if (require.main === module) {
     process.exit(1);
   });
 }
-
